@@ -1037,3 +1037,32 @@ main > section {
   .preview__download { width: 100%; justify-content: center; }
   .footer__inner { flex-direction: column; align-items: flex-start; }
 }
+/* Mobile‑first adjustments */
+@media (max-width: 600px) {
+  /* Full‑width downloader form */
+  .downloader {
+    max-width: 100%;
+    padding: 0 16px;
+  }
+  .downloader__field,
+  .downloader__submit,
+  .preview__card {
+    min-height: 48px; /* larger tap area */
+  }
+  .preview__card {
+    max-width: 100%;
+    border-radius: 0;
+    padding: 16px;
+  }
+  /* Navigation collapses vertically */
+  .nav__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .nav__links,
+  .nav__actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+  }
+}

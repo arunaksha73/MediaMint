@@ -37,20 +37,18 @@ app.use((req, res, next) => {
 });
 
 // Route Mounting
+// Route Mounting – must be before static file handlers so API requests are caught
 app.use('/api/download', downloadRoutes);
-
-// Proxy download route — streams Instagram CDN videos through our server
 app.get('/api/proxy/download', proxyDownload);
 
 // Serve static frontend files individually for security (do not expose backend directory)
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../index.html'));
-});
-app.get('/script.js', (req, res) => {
-    res.sendFile(path.join(__dirname, '../script.js'));
-});
-app.get('/style.css', (req, res) => {
-    res.sendFile(path.join(__dirname, '../style.css'));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, '../index.html')));
+app.get('/script.js', (req, res) => res.sendFile(path.join(__dirname, '../script.js')));
+app.get('/style.css', (req, res) => res.sendFile(path.join(__dirname, '../style.css')));
+
+// 404 JSON handler for any unknown API path
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ success: false, error: 'Endpoint not found' });
 });
 
 // 404 Handler for undefined routes
