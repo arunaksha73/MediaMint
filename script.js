@@ -311,7 +311,7 @@ let apiBase = window.location.origin;
 
 (function previewDownload() {
   // Use event delegation since the button is inside a conditionally-shown card
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const btn = e.target.closest('#previewDownloadBtn');
     if (!btn) return;
 
@@ -325,21 +325,45 @@ let apiBase = window.location.origin;
 
     // Route through our server proxy so Instagram CDN headers are handled
     const proxyUrl = `${apiBase}/api/proxy/download?url=${encodeURIComponent(url)}&filename=instagram_reel_${Date.now()}`;
+    const filename = `instagram_reel_${Date.now()}.mp4`;
 
-    // On mobile and desktop, triggering direct location download works reliably across iOS Safari and Android
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
     if (isMobile) {
-      window.location.href = proxyUrl;
+      // On mobile, fetch as blob then open in new tab — lets the browser's native "Save" sheet appear
+      showToast('⬇️ Preparing download…');
+      try {
+        const resp = await fetch(proxyUrl);
+        if (!resp.ok) throw new Error('Network error: ' + resp.status);
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // Revoke after a delay to allow the download to start
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        showToast('✅ Saved to your device!');
+      } catch (err) {
+        console.error('Mobile download failed:', err);
+        // Final fallback: open in new tab so browser can save manually
+        window.open(proxyUrl, '_blank');
+        showToast('Tap and hold the video to save it');
+      }
     } else {
+      // Desktop: standard anchor download
       const a = document.createElement('a');
       a.href = proxyUrl;
-      a.download = `instagram_reel_${Date.now()}.mp4`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      setTimeout(() => document.body.removeChild(a), 1000);
     }
   });
 })();
+
 
 /* ==========================================================================
    FAQ accordion

@@ -51,16 +51,21 @@ const proxyDownload = async (req, res, next) => {
         // Determine filename
         const safeFilename = (filename || 'instagram_reel').replace(/[^a-z0-9_.-]/gi, '_') + '.mp4';
 
-        // Set download headers
-        res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"`);
+        // Set download headers — use both ASCII and RFC 5987 encoding so all mobile browsers trigger a save
+        res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"; filename*=UTF-8''${encodeURIComponent(safeFilename)}`);
         res.setHeader('Content-Type', response.headers['content-type'] || 'video/mp4');
         if (response.headers['content-length']) {
             res.setHeader('Content-Length', response.headers['content-length']);
         }
         res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        // Prevent proxy/browser caching that can strip the Content-Disposition header
+        res.setHeader('Cache-Control', 'no-store');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
 
         // Pipe the stream to client
         response.data.pipe(res);
+
 
         response.data.on('error', (err) => {
             if (!res.headersSent) {
