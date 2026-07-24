@@ -149,8 +149,11 @@ let apiBase = window.location.origin;
   const isFileScheme = window.location.protocol === 'file:';
   const isWrongPort  = isLocalhost && window.location.port !== '3000';
 
-  if (isFileScheme || isWrongPort) {
-    // Running from file:// or wrong local port — point at local server
+  if (isFileScheme) {
+    // Running from file:// — point to production Render backend so they can test easily
+    apiBase = RENDER_BACKEND_URL;
+  } else if (isWrongPort) {
+    // Running on localhost but wrong port — point at local server
     apiBase = 'http://localhost:3000';
   } else if (!isLocalhost) {
     // Deployed environment: always use the Render backend, regardless of
