@@ -1023,7 +1023,9 @@ main > section {
 }
 
 @media (max-width: 760px) {
+  .nav__inner { padding: 0 16px; gap: 12px; }
   .nav__links { display: none; }
+  .nav__social-icon { display: none; }
   .nav__burger { display: flex; }
   .hero { padding: 90px 20px 44px; }
   main > section { padding: 64px 20px; }
