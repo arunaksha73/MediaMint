@@ -18,11 +18,20 @@ app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-app.use(cors({
-    origin: config.corsOrigin,
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+
+// CORS — allow all origins so the Vercel frontend can always reach this Render backend.
+// This is a public read-only API (no auth tokens, no user data), so wildcard is safe.
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+    if (req.method === 'OPTIONS') {
+        // Handle preflight immediately — don't pass to route handlers
+        return res.sendStatus(204);
+    }
+    next();
+});
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -36,7 +45,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// Route Mounting
+// Health check — returns instantly, used to wake up Render's free-tier instance
+app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+
 // Route Mounting – must be before static file handlers so API requests are caught
 app.use('/api/download', downloadRoutes);
 app.get('/api/proxy/download', proxyDownload);

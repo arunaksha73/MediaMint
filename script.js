@@ -224,6 +224,31 @@ let apiBase = window.location.origin;
 
   submitBtn.addEventListener('click', (e) => spawnRipple(e, submitBtn));
 
+  /**
+   * Render free tier sleeps after 15 min of inactivity.  The first request
+   * after a sleep period fails instantly with a network error ("Failed to fetch").
+   * This helper pings /health (which responds in <50 ms when awake) and retries
+   * up to MAX_TRIES times, showing a friendly "Waking up server…" toast so the
+   * user knows to wait rather than seeing a confusing error.
+   */
+  async function wakeServer(maxTries = 3, timeoutMs = 8000) {
+    const healthUrl = `${apiBase}/health`;
+    for (let i = 0; i < maxTries; i++) {
+      try {
+        const ctrl = new AbortController();
+        const tid   = setTimeout(() => ctrl.abort(), timeoutMs);
+        const r = await fetch(healthUrl, { signal: ctrl.signal });
+        clearTimeout(tid);
+        if (r.ok) return true; // server is awake
+      } catch (_) {
+        if (i === 0) showToast('⏳ Waking up server… please wait');
+      }
+      // Brief pause before retrying
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    return false; // server did not respond in time
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const value = input.value.trim();
@@ -240,6 +265,12 @@ let apiBase = window.location.origin;
     if (previewCard) previewCard.hidden = true;
 
     try {
+      // Wake the server first (no-op if already awake, graceful if sleeping)
+      const awake = await wakeServer();
+      if (!awake) {
+        throw new Error('Server is starting up — please try again in a few seconds.');
+      }
+
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -313,11 +344,16 @@ let apiBase = window.location.origin;
 
       previewCard.hidden = false;
       previewCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      showToast('✅ Media ready — click Download to save');
+      showToast('✅ Media ready — tap Download to save');
 
     } catch (err) {
       console.error(err);
-      showToast('❌ ' + (err.message || 'Error connecting to the backend server'));
+      // Show a clean user-friendly message, never raw server errors
+      const msg = err.message || '';
+      const friendlyMsg = msg.includes('fetch') || msg.includes('network') || msg.includes('NetworkError')
+        ? '❌ Cannot reach server — check your connection and try again'
+        : '❌ ' + msg;
+      showToast(friendlyMsg);
       field.classList.add('is-invalid');
     } finally {
       submitBtn.classList.remove('is-loading');
