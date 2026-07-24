@@ -89,8 +89,9 @@ const fetchMediaDetails = async (url) => {
     if (isVideo && info.formats && info.formats.length > 0) {
         const combinedFormats = info.formats.filter(f => 
             f.url && 
-            f.vcodec && f.vcodec !== 'none' && 
-            f.acodec && f.acodec !== 'none'
+            f.vcodec !== 'none' && 
+            f.acodec !== 'none' &&
+            f.ext === 'mp4'
         );
 
         if (combinedFormats.length > 0) {
@@ -139,4 +140,4 @@ const fetchMediaDetails = async (url) => {
     };
 };
 
-module.exports = { fetchMediaDetails, runYtDlp };
+module.exports = { fetchMediaDetails };

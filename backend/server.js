@@ -48,29 +48,6 @@ app.use((req, res, next) => {
 // Health check — returns instantly, used to wake up Render's free-tier instance
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 
-// Temporary test route to debug yt-dlp format fields on Render
-app.post('/api/test-formats', async (req, res) => {
-    try {
-        const { url } = req.body;
-        const { runYtDlp } = require('./services/instagramService');
-        const jsonStr = await runYtDlp(['--dump-json', '--no-playlist', '--no-warnings', url]);
-        const info = JSON.parse(jsonStr);
-        res.json({
-            url: info.url,
-            formats: (info.formats || []).map(f => ({
-                format_id: f.format_id,
-                ext: f.ext,
-                vcodec: f.vcodec,
-                acodec: f.acodec,
-                height: f.height,
-                width: f.width,
-                url: f.url ? 'present' : 'missing'
-            }))
-        });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
 
 // Route Mounting – must be before static file handlers so API requests are caught
 app.use('/api/download', downloadRoutes);
