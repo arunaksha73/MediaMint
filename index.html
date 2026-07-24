@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediaMint — Save Instagram Reels, Stories & Posts</title>
+  <meta name="description"
+    content="MediaMint saves Instagram Reels, Stories, and Posts in original quality. Paste a link, get your media, in seconds.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Background atmosphere -->
+  <div class="atmosphere" aria-hidden="true">
+    <div class="blob blob--one"></div>
+    <div class="blob blob--two"></div>
+    <div class="blob blob--three"></div>
+    <div class="grain"></div>
+  </div>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="top">
+    <div class="nav__inner">
+      <a href="#top" class="nav__brand" aria-label="MediaMint home">
+        <span class="nav__logo" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="28" height="28" rx="9" stroke="url(#logoGrad)" stroke-width="2" />
+            <circle cx="15" cy="15" r="5.2" stroke="url(#logoGrad)" stroke-width="2" />
+            <circle cx="21.3" cy="8.7" r="1.6" fill="url(#logoGrad)" />
+            <defs>
+              <linearGradient id="logoGrad" x1="1" y1="1" x2="29" y2="29" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#F77737" />
+                <stop offset="0.5" stop-color="#E1306C" />
+                <stop offset="1" stop-color="#833AB4" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="nav__name">MediaMint</span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#top">Home</a>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/arunaksha73" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+
+      <div class="nav__actions">
+        <a href="https://x.com/arunaksha73" target="_blank" rel="noopener noreferrer" class="nav__social-icon" aria-label="X (Twitter)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="m3 3 7.6 9.7L3.2 21H5l6.4-6.9L16.5 21H21l-8-10.2L20 3h-1.8l-5.8 6.3L7.5 3H3Z" />
+          </svg>
+        </a>
+        <a href="https://www.instagram.com/mr.ad_8974?igsh=bTFxZTNibnY0Zmk1" target="_blank" rel="noopener noreferrer" class="nav__social-icon" aria-label="Instagram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+        </a>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light and dark theme"
+          aria-pressed="false">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8" />
+            <path
+              d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20 14.2A8.6 8.6 0 1 1 9.8 4a7 7 0 0 0 10.2 10.2Z" stroke="currentColor" stroke-width="1.8"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+        <button class="nav__burger" id="navBurger" type="button" aria-label="Open menu" aria-expanded="false"
+          aria-controls="mobileMenu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#top">Home</a>
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/arunaksha73" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="hero__particles" id="particles" aria-hidden="true"></div>
+
+      <p class="eyebrow reveal">No login. No watermark. No tracking.</p>
+
+      <h1 class="hero__title reveal">
+        Save Reels &amp; Stories
+        <span class="hero__title-grad">without losing quality</span>
+      </h1>
+
+      <p class="hero__subtitle reveal">
+        Paste any public Instagram link and MediaMint hands you the original file —
+        video, photo, or carousel — ready to keep, in a few seconds.
+      </p>
+
+      <form class="downloader reveal" id="downloaderForm" novalidate>
+        <label for="urlInput" class="sr-only">Instagram link</label>
+        <div class="downloader__field" id="downloaderField">
+          <svg class="downloader__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 12a3.5 3.5 0 0 0 5.3.4l3-3a3.5 3.5 0 0 0-5-5l-1.6 1.5" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round" />
+            <path d="M15 12a3.5 3.5 0 0 0-5.3-.4l-3 3a3.5 3.5 0 0 0 5 5l1.5-1.5" stroke="currentColor"
+              stroke-width="1.7" stroke-linecap="round" />
+          </svg>
+          <input type="url" id="urlInput" name="url" placeholder="https://www.instagram.com/reel/..." autocomplete="off"
+            spellcheck="false" aria-describedby="urlHint">
+          <button type="button" class="downloader__paste" id="pasteBtn">Paste</button>
+          <button type="button" class="downloader__clear" id="clearBtn" aria-label="Clear input">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+        <button type="submit" class="btn btn--primary downloader__submit" id="downloadBtn">
+          <span class="btn__label">Get media</span>
+          <span class="btn__spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+      <p class="downloader__hint" id="urlHint">Works with Reels, Stories, Posts, and Carousels from public accounts.</p>
+    </section>
+
+    <!-- ============ PREVIEW ============ -->
+    <section class="preview" id="previewSection" aria-live="polite">
+      <!-- Preview card - hidden until a valid URL is fetched -->
+      <div class="preview__card" id="previewCard" hidden>
+
+        <!-- Video player area (shown for Reels) -->
+        <div class="preview__video-wrap" id="previewVideoWrap" style="display:none;">
+          <video id="previewVideo" controls playsinline preload="metadata"
+            style="width:100%;border-radius:12px;display:block;background:#000;"></video>
+        </div>
+
+        <!-- Thumbnail area (shown for Posts/Photos) -->
+        <div class="preview__thumb" id="previewThumb">
+          <div class="preview__thumb-shine"></div>
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8 5v14l11-7L8 5Z" fill="currentColor" />
+          </svg>
+        </div>
+
+        <div class="preview__meta">
+          <p class="preview__title" id="previewTitle"></p>
+          <div class="preview__tags" id="previewTags"></div>
+        </div>
+
+        <button class="btn btn--primary preview__download" id="previewDownloadBtn" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          Download
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section class="features" id="features">
+      <div class="section-head reveal">
+        <p class="eyebrow">Why MediaMint</p>
+        <h2>Built for people who just want the file</h2>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature-card reveal">
+          <div class="feature-card__icon feature-card__icon--speed" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M13 3 4 14h7l-1 7 9-11h-7l1-7Z" stroke="currentColor" stroke-width="1.7"
+                stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3>Fast by default</h3>
+          <p>Fetching starts the moment you paste a link — most downloads are ready before you've switched tabs.</p>
+        </article>
+
+        <article class="feature-card reveal">
+          <div class="feature-card__icon feature-card__icon--quality" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="6" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.7" />
+              <path d="M17 10.5 21 8v8l-4-2.5" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3>Original quality</h3>
+          <p>No re-encoding, no compression pass. You get the same resolution Instagram received on upload.</p>
+        </article>
+
+        <article class="feature-card reveal">
+          <div class="feature-card__icon feature-card__icon--privacy" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3 5 6v5c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z" stroke="currentColor" stroke-width="1.7"
+                stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3>Nothing stored</h3>
+          <p>Links are processed in memory and discarded. No accounts, no history, no file left on our servers.</p>
+        </article>
+
+        <article class="feature-card reveal">
+          <div class="feature-card__icon feature-card__icon--everywhere" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <rect x="6" y="2.5" width="12" height="19" rx="2.5" stroke="currentColor" stroke-width="1.7" />
+              <path d="M10.5 18.3h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+            </svg>
+          </div>
+          <h3>Runs anywhere</h3>
+          <p>A browser tab is all it takes — phone, tablet, or desktop, with no app to install.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="how" id="how">
+      <div class="section-head reveal">
+        <p class="eyebrow">Process</p>
+        <h2>Three steps, one destination folder</h2>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline__track" aria-hidden="true"></div>
+
+        <article class="timeline__step reveal">
+          <div class="timeline__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M9 12a3.5 3.5 0 0 0 5.3.4l3-3a3.5 3.5 0 0 0-5-5l-1.6 1.5" stroke="currentColor"
+                stroke-width="1.7" stroke-linecap="round" />
+              <path d="M15 12a3.5 3.5 0 0 0-5.3-.4l-3 3a3.5 3.5 0 0 0 5 5l1.5-1.5" stroke="currentColor"
+                stroke-width="1.7" stroke-linecap="round" />
+            </svg>
+          </div>
+          <h3>Paste the link</h3>
+          <p>Copy any Reel, Story, or Post URL straight from the Instagram share menu.</p>
+        </article>
+
+        <article class="timeline__step reveal">
+          <div class="timeline__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M4 12a8 8 0 0 1 13.5-5.8M20 12a8 8 0 0 1-13.5 5.8" stroke="currentColor" stroke-width="1.7"
+                stroke-linecap="round" />
+              <path d="M17.5 3v3.7h-3.7M6.5 21v-3.7h3.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3>We fetch the media</h3>
+          <p>MediaMint reads the public post and locates the original video or image file behind it.</p>
+        </article>
+
+        <article class="timeline__step reveal">
+          <div class="timeline__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="1.7"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3>Download it</h3>
+          <p>One tap saves the file to your device, in the quality it was posted in.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="faq" id="faq">
+      <div class="section-head reveal">
+        <p class="eyebrow">Questions</p>
+        <h2>Good to know</h2>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion__item reveal">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq-1">
+            <span>Do I need an Instagram account?</span>
+            <svg class="accordion__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="accordion__panel" id="faq-1">
+            <p>No. MediaMint only works with content from public accounts, so no login or password is ever required.</p>
+          </div>
+        </div>
+
+        <div class="accordion__item reveal">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq-2">
+            <span>What can I download?</span>
+            <svg class="accordion__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="accordion__panel" id="faq-2">
+            <p>Reels, feed Posts, Stories still within their 24-hour window, and multi-image Carousels — each saved in
+              its original format.</p>
+          </div>
+        </div>
+
+        <div class="accordion__item reveal">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq-3">
+            <span>Is there a watermark on the file?</span>
+            <svg class="accordion__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="accordion__panel" id="faq-3">
+            <p>Never. What you get is the same file Instagram stores, untouched and unbranded.</p>
+          </div>
+        </div>
+
+        <div class="accordion__item reveal">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq-4">
+            <span>Is this free?</span>
+            <svg class="accordion__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="accordion__panel" id="faq-4">
+            <p>Yes, with no daily limit. MediaMint is supported by a small ad-free budget, not by your data.</p>
+          </div>
+        </div>
+
+        <div class="accordion__item reveal">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq-5">
+            <span>Should I only save content I have rights to?</span>
+            <svg class="accordion__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="accordion__panel" id="faq-5">
+            <p>Yes — please only download your own posts or content you have the creator's permission to keep, and
+              respect Instagram's terms of use.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <a href="#top" class="footer__brand">
+        <span class="nav__logo" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="28" height="28" rx="9" stroke="url(#logoGradFooter)" stroke-width="2" />
+            <circle cx="15" cy="15" r="5.2" stroke="url(#logoGradFooter)" stroke-width="2" />
+            <circle cx="21.3" cy="8.7" r="1.6" fill="url(#logoGradFooter)" />
+            <defs>
+              <linearGradient id="logoGradFooter" x1="1" y1="1" x2="29" y2="29" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#F77737" />
+                <stop offset="0.5" stop-color="#E1306C" />
+                <stop offset="1" stop-color="#833AB4" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="nav__name">MediaMint</span>
+      </a>
+
+      <nav class="footer__links" aria-label="Footer">
+        <a href="#top">Home</a>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <div class="footer__socials">
+        <a href="https://github.com/arunaksha73" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.6.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.3-3.4-1.3-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 2.9.9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.5-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .6 1.4.2 2.5.1 2.8.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7 1 .7 2v3c0 .3.2.6.7.5A10.1 10.1 0 0 0 22 12.2C22 6.6 17.5 2 12 2Z" />
+          </svg>
+        </a>
+        <a href="https://x.com/arunaksha73" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="m3 3 7.6 9.7L3.2 21H5l6.4-6.9L16.5 21H21l-8-10.2L20 3h-1.8l-5.8 6.3L7.5 3H3Z" />
+          </svg>
+        </a>
+        <a href="https://www.instagram.com/mr.ad_8974?igsh=bTFxZTNibnY0Zmk1" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.7" />
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7" />
+            <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" />
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p>© <span id="year"></span> MediaMint. For personal use on content you own or have permission to save.</p>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
