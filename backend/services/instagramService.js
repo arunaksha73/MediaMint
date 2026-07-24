@@ -7,21 +7,19 @@
 const { execFile } = require('child_process');
 const path = require('path');
 
-// yt-dlp executable path (installed via pip for the current user)
+// yt-dlp executable path resolution across Windows and Linux (Render/Docker)
 const YT_DLP_PATHS = [
-    // Confirmed install path on this machine
+    'yt-dlp',  // Standard system PATH (Linux/Render/Windows)
+    '/usr/local/bin/yt-dlp',
+    '/usr/bin/yt-dlp',
+    path.join(process.env.HOME || '', '.local', 'bin', 'yt-dlp'),
     'C:\\Users\\dasam\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\Scripts\\yt-dlp.exe',
-    'yt-dlp',  // if on PATH
     path.join(
         process.env.LOCALAPPDATA || '',
         'Packages',
         'PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0',
         'LocalCache', 'local-packages', 'Python313', 'Scripts', 'yt-dlp.exe'
     ),
-    path.join(process.env.APPDATA || '', '..', 'Local', 'Programs', 'Python', 'Python313', 'Scripts', 'yt-dlp.exe'),
-    path.join(process.env.USERPROFILE || '', 'AppData', 'Local', 'Packages',
-        'PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0',
-        'LocalCache', 'local-packages', 'Python313', 'Scripts', 'yt-dlp.exe'),
 ];
 
 function runYtDlp(args) {
