@@ -370,26 +370,20 @@ let apiBase = window.location.origin;
   /**
    * Trigger a download without navigating the current page away.
    *
-   * Strategy matrix (all rely on the server sending Content-Disposition: attachment):
+   * Strategy:
+   *  Open the download proxy URL in a new tab/window via window.open() for all
+   *  platforms (Desktop PC/Mac, iOS, and Android).
    *
-   *  Mobile (iOS & Android) → window.open(_blank)
-   *    - iOS Safari: the only permitted download method. New tab gets the
-   *      attachment header → native "Save to Files" sheet appears.
-   *    - Android Chrome: hidden <a download> navigates the current page away
-   *      even on same-origin links, causing "page not found". window.open
-   *      opens the proxy in a background tab; the download manager intercepts
-   *      the Content-Disposition header and the tab closes itself.
+   *  Since the backend server responds with Content-Disposition: attachment,
+   *  the browser detects it as a file download:
+   *   - On Desktop: It triggers the standard "Save As" file dialog and Chrome/Firefox
+   *     will automatically close the new tab instantly.
+   *   - On Mobile: It triggers the native download manager (Android) or the
+   *     native "Save to Files" dialog sheet (iOS Safari) without replacing the app.
    *
-   *  Desktop → hidden <a download> click
-   *    - No popup-blocker concerns on desktop.
-   *    - Content-Disposition: attachment triggers the browser's save dialog.
-   *
-   * We deliberately avoid:
-   *  • window.location.href  — navigates the page away; any server error shows
-   *                           "page not found" and the user loses their result.
-   *  • fetch → blob → a.download — iOS ignores download on blob URLs (WebKit
-   *                           policy); loading a full video into RAM crashes
-   *                           low-memory phones.
+   *  This unified approach completely bypasses:
+   *   - Browser CORS restrictions on <a download> for cross-origin links (Vercel -> Render).
+   *   - In-memory blob fetch timeouts on low-RAM mobile devices.
    */
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('#previewDownloadBtn');
@@ -406,31 +400,12 @@ let apiBase = window.location.origin;
     const filename  = `instagram_${mediaType}_${ts}`;
     const proxyUrl  = `${apiBase}/api/proxy/download?url=${encodeURIComponent(url)}&filename=${filename}`;
 
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
     showToast('⬇️ Download starting…');
 
-    if (isMobile) {
-      // Mobile (iOS + Android): open in a new tab.
-      // The server responds with Content-Disposition: attachment so the browser
-      // triggers the native download manager / "Save to Files" sheet instead of
-      // rendering the video. The tab closes automatically after the download starts.
-      const win = window.open(proxyUrl, '_blank', 'noopener,noreferrer');
-      if (!win) {
-        // Popup was blocked (common on in-app browsers like Instagram's WebView).
-        // Show a helpful message so the user knows what to do.
-        showToast('⚠️ Pop-up blocked — open this page in Chrome/Safari and try again');
-      }
-    } else {
-      // Desktop: hidden anchor click. Same-origin proxy + Content-Disposition:
-      // attachment reliably triggers the browser save dialog without navigation.
-      const a = document.createElement('a');
-      a.href     = proxyUrl;
-      a.download = filename;
-      a.rel      = 'noopener';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => document.body.removeChild(a), 2000);
+    const win = window.open(proxyUrl, '_blank', 'noopener,noreferrer');
+    if (!win) {
+      // Show warning if popup blocker suppresses the tab opening (e.g. in-app WebViews)
+      showToast('⚠️ Pop-up blocked — open this page in Chrome/Safari and try again');
     }
   });
 })();
