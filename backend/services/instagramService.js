@@ -139,4 +139,4 @@ const fetchMediaDetails = async (url) => {
     };
 };
 
-module.exports = { fetchMediaDetails };
+module.exports = { fetchMediaDetails, runYtDlp };
