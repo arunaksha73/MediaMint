@@ -51,12 +51,21 @@ const proxyDownload = async (req, res, next) => {
         // Determine filename
         const safeFilename = (filename || 'instagram_reel').replace(/[^a-z0-9_.-]/gi, '_') + '.mp4';
 
+        // Determine content type — force video/mp4 for video so iOS doesn't try to stream inline
+        const upstreamType = response.headers['content-type'] || '';
+        const contentType  = safeFilename.endsWith('.mp4') ? 'video/mp4'
+                           : safeFilename.endsWith('.jpg') ? 'image/jpeg'
+                           : upstreamType || 'application/octet-stream';
+
         // Set download headers — use both ASCII and RFC 5987 encoding so all mobile browsers trigger a save
         res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"; filename*=UTF-8''${encodeURIComponent(safeFilename)}`);
-        res.setHeader('Content-Type', response.headers['content-type'] || 'video/mp4');
+        res.setHeader('Content-Type', contentType);
         if (response.headers['content-length']) {
             res.setHeader('Content-Length', response.headers['content-length']);
         }
+        // Accept-Ranges: none stops iOS from issuing range requests that can
+        // bypass Content-Disposition and cause the video to play inline instead of saving
+        res.setHeader('Accept-Ranges', 'none');
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
         // Prevent proxy/browser caching that can strip the Content-Disposition header

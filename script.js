@@ -7,10 +7,12 @@
 const qs = (sel, ctx = document) => ctx.querySelector(sel);
 const qsa = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
-function showToast(message, duration = 2400) {
+function showToast(message, duration = 2800) {
   const toast = qs('#toast');
   if (!toast) return;
-  toast.textContent = message;
+  // Truncate long technical error strings so they don't blow up the toast UI
+  const MAX = 120;
+  toast.textContent = message.length > MAX ? message.slice(0, MAX) + '…' : message;
   toast.classList.add('is-visible');
   clearTimeout(showToast._t);
   showToast._t = setTimeout(() => toast.classList.remove('is-visible'), duration);
@@ -129,14 +131,33 @@ function showToast(message, duration = 2400) {
    API base URL — shared across all modules
    ========================================================================== */
 
+/* ==========================================================================
+   API base URL
+   ─────────────────────────────────────────────────────────────────────────
+   The frontend can be deployed on Vercel (static CDN) while the Express
+   backend runs on Render.  When that split-deployment is detected we swap
+   apiBase to the Render URL so all /api/* calls reach the actual server.
+
+   ⚙️  UPDATE THIS when you redeploy the backend to a new Render service:
+   ========================================================================== */
+const RENDER_BACKEND_URL = 'https://media-mint.onrender.com'; // ← your Render URL
+
 let apiBase = window.location.origin;
 (function () {
-  const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+  const host = window.location.hostname;
+  const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(host);
   const isFileScheme = window.location.protocol === 'file:';
   const isWrongPort  = isLocalhost && window.location.port !== '3000';
-  if (isFileScheme || isWrongPort || !apiBase || apiBase === 'null') {
+
+  if (isFileScheme || isWrongPort) {
+    // Running from file:// or wrong local port — point at local server
     apiBase = 'http://localhost:3000';
+  } else if (!isLocalhost) {
+    // Deployed environment: always use the Render backend, regardless of
+    // which CDN/domain is serving the HTML (Vercel, GitHub Pages, etc.)
+    apiBase = RENDER_BACKEND_URL;
   }
+  // If isLocalhost && port === 3000: Express serves everything, apiBase stays as-is
 })();
 
 /* ==========================================================================
@@ -310,8 +331,31 @@ let apiBase = window.location.origin;
    ========================================================================== */
 
 (function previewDownload() {
-  // Use event delegation since the button is inside a conditionally-shown card
-  document.addEventListener('click', async (e) => {
+  /**
+   * Trigger a download without navigating the current page away.
+   *
+   * Strategy matrix (all rely on the server sending Content-Disposition: attachment):
+   *
+   *  Mobile (iOS & Android) → window.open(_blank)
+   *    - iOS Safari: the only permitted download method. New tab gets the
+   *      attachment header → native "Save to Files" sheet appears.
+   *    - Android Chrome: hidden <a download> navigates the current page away
+   *      even on same-origin links, causing "page not found". window.open
+   *      opens the proxy in a background tab; the download manager intercepts
+   *      the Content-Disposition header and the tab closes itself.
+   *
+   *  Desktop → hidden <a download> click
+   *    - No popup-blocker concerns on desktop.
+   *    - Content-Disposition: attachment triggers the browser's save dialog.
+   *
+   * We deliberately avoid:
+   *  • window.location.href  — navigates the page away; any server error shows
+   *                           "page not found" and the user loses their result.
+   *  • fetch → blob → a.download — iOS ignores download on blob URLs (WebKit
+   *                           policy); loading a full video into RAM crashes
+   *                           low-memory phones.
+   */
+  document.addEventListener('click', (e) => {
     const btn = e.target.closest('#previewDownloadBtn');
     if (!btn) return;
 
@@ -321,45 +365,36 @@ let apiBase = window.location.origin;
       return;
     }
 
-    showToast('⬇️ Download starting…');
-
-    // Route through our server proxy so Instagram CDN headers are handled
-    const proxyUrl = `${apiBase}/api/proxy/download?url=${encodeURIComponent(url)}&filename=instagram_reel_${Date.now()}`;
-    const filename = `instagram_reel_${Date.now()}.mp4`;
+    const mediaType = btn.dataset.type || 'media';
+    const ts        = Date.now();
+    const filename  = `instagram_${mediaType}_${ts}`;
+    const proxyUrl  = `${apiBase}/api/proxy/download?url=${encodeURIComponent(url)}&filename=${filename}`;
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
+    showToast('⬇️ Download starting…');
+
     if (isMobile) {
-      // On mobile, fetch as blob then open in new tab — lets the browser's native "Save" sheet appear
-      showToast('⬇️ Preparing download…');
-      try {
-        const resp = await fetch(proxyUrl);
-        if (!resp.ok) throw new Error('Network error: ' + resp.status);
-        const blob = await resp.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        // Revoke after a delay to allow the download to start
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-        showToast('✅ Saved to your device!');
-      } catch (err) {
-        console.error('Mobile download failed:', err);
-        // Final fallback: open in new tab so browser can save manually
-        window.open(proxyUrl, '_blank');
-        showToast('Tap and hold the video to save it');
+      // Mobile (iOS + Android): open in a new tab.
+      // The server responds with Content-Disposition: attachment so the browser
+      // triggers the native download manager / "Save to Files" sheet instead of
+      // rendering the video. The tab closes automatically after the download starts.
+      const win = window.open(proxyUrl, '_blank', 'noopener,noreferrer');
+      if (!win) {
+        // Popup was blocked (common on in-app browsers like Instagram's WebView).
+        // Show a helpful message so the user knows what to do.
+        showToast('⚠️ Pop-up blocked — open this page in Chrome/Safari and try again');
       }
     } else {
-      // Desktop: standard anchor download
+      // Desktop: hidden anchor click. Same-origin proxy + Content-Disposition:
+      // attachment reliably triggers the browser save dialog without navigation.
       const a = document.createElement('a');
-      a.href = proxyUrl;
+      a.href     = proxyUrl;
       a.download = filename;
+      a.rel      = 'noopener';
       document.body.appendChild(a);
       a.click();
-      setTimeout(() => document.body.removeChild(a), 1000);
+      setTimeout(() => document.body.removeChild(a), 2000);
     }
   });
 })();
