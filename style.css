@@ -967,11 +967,26 @@ main > section {
   margin: 0 auto;
   border-top: 1px solid var(--border);
   padding-top: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .footer__bottom p {
   font-size: 0.82rem;
   color: var(--muted);
+}
+
+.footer__credits a {
+  color: var(--text);
+  font-weight: 500;
+  transition: color 0.2s var(--ease-out);
+}
+
+.footer__credits a:hover {
+  color: var(--primary);
 }
 
 /* ==========================================================================
