@@ -140,7 +140,7 @@ function showToast(message, duration = 2800) {
 
    ⚙️  UPDATE THIS when you redeploy the backend to a new Render service:
    ========================================================================== */
-const RENDER_BACKEND_URL = 'https://media-mint.onrender.com'; // ← your Render URL
+const RENDER_BACKEND_URL = 'https://mediamint-backend-9m54.onrender.com'; // ← your Render URL
 
 let apiBase = window.location.origin;
 (function () {
