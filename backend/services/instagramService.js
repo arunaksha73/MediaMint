@@ -84,8 +84,26 @@ const fetchMediaDetails = async (url) => {
     const isVideo = ['mp4', 'mov', 'webm', 'm4v'].includes(ext);
     const type = isVideo ? 'reel' : 'post';
 
-    // Get direct download URL (best quality)
-    const downloadUrl = info.url || (info.formats && info.formats[info.formats.length - 1]?.url);
+    // Get direct download URL (best quality combined video + audio format)
+    let downloadUrl = null;
+    if (isVideo && info.formats && info.formats.length > 0) {
+        const combinedFormats = info.formats.filter(f => 
+            f.url && 
+            f.vcodec && f.vcodec !== 'none' && 
+            f.acodec && f.acodec !== 'none'
+        );
+
+        if (combinedFormats.length > 0) {
+            // Sort by height (resolution) descending
+            combinedFormats.sort((a, b) => (b.height || 0) - (a.height || 0));
+            downloadUrl = combinedFormats[0].url;
+        }
+    }
+
+    // Fallback if no combined format was found or if it's a photo/post
+    if (!downloadUrl) {
+        downloadUrl = info.url || (info.formats && info.formats[info.formats.length - 1]?.url);
+    }
 
     if (!downloadUrl) {
         throw new Error('Could not extract a direct download URL. The post may be private.');
