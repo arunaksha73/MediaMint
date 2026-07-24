@@ -14,7 +14,10 @@ const { proxyDownload } = require('./controllers/proxyController');
 const app = express();
 
 // Security & Optimization Middleware
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(cors({
     origin: config.corsOrigin,
     methods: ['GET', 'POST'],

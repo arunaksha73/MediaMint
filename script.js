@@ -175,7 +175,7 @@ let apiBase = window.location.origin;
       }
     } catch (err) {
       input.focus();
-      showToast('Paste blocked — try Ctrl/Cmd+V instead');
+      showToast('Paste blocked — long-press field or use Ctrl+V');
     }
   });
 
@@ -326,12 +326,18 @@ let apiBase = window.location.origin;
     // Route through our server proxy so Instagram CDN headers are handled
     const proxyUrl = `${apiBase}/api/proxy/download?url=${encodeURIComponent(url)}&filename=instagram_reel_${Date.now()}`;
 
-    const a = document.createElement('a');
-    a.href = proxyUrl;
-    a.download = `instagram_reel_${Date.now()}.mp4`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // On mobile and desktop, triggering direct location download works reliably across iOS Safari and Android
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.location.href = proxyUrl;
+    } else {
+      const a = document.createElement('a');
+      a.href = proxyUrl;
+      a.download = `instagram_reel_${Date.now()}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   });
 })();
 
