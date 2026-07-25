@@ -1,15 +1,16 @@
-# nixpacks.toml — placed inside backend/ directory
-# Railway will use this when "Root Directory" is set to "backend" in the dashboard.
-#
-# Tells Nixpacks to install Python (for yt-dlp) alongside Node.js.
+# nixpacks.toml — inside backend/ directory
+# Railway/Nixpacks uses this to install Python alongside Node.js
+# so that "python3 -m yt_dlp" is available at runtime.
 
 [phases.setup]
-nixPkgs = ["nodejs_20", "python311", "python311Packages.pip"]
+# nodejs_20 = Node.js 20 LTS
+# python311 = Python 3.11 (pip is bundled with it in nixpkgs)
+nixPkgs = ["nodejs_20", "python311"]
 
 [phases.install]
 cmds = [
     "npm install",
-    "pip install yt-dlp"
+    "python3.11 -m pip install --user yt-dlp"
 ]
 
 [start]

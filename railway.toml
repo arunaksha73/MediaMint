@@ -1,9 +1,13 @@
+# railway.toml — repo root
+# Used when Root Directory is NOT set (i.e., root of repo is the service root).
+# If Root Directory = "backend", Railway uses backend/railway.toml instead.
+
 [build]
 builder = "nixpacks"
-buildCommand = "pip install yt-dlp && npm install"
+buildCommand = "cd backend && pip install yt-dlp || pip3 install yt-dlp || python3 -m pip install yt-dlp || true && npm install"
 
 [deploy]
-startCommand = "node server.js"
+startCommand = "node backend/server.js"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"

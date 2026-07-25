@@ -1,0 +1,12 @@
+# railway.toml — MUST live inside backend/ when Root Directory = "backend"
+# Railway looks for this file relative to the configured Root Directory.
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "node server.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
