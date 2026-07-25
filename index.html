@@ -114,6 +114,16 @@
         video, photo, or carousel — ready to keep, in a few seconds.
       </p>
 
+      <!-- In-app browser warning banner (shown only in Instagram/TikTok/FB WebViews) -->
+      <div class="inapp-warning reveal" id="inAppWarning" hidden>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <span>You are using an in-app browser. Tap <strong>•••</strong> and select <strong>"Open in Chrome / Safari"</strong> to enable direct file downloads.</span>
+      </div>
+
       <form class="downloader reveal" id="downloaderForm" novalidate>
         <label for="urlInput" class="sr-only">Instagram link</label>
         <div class="downloader__field" id="downloaderField">
@@ -413,7 +423,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="script.js?v=1.0.2"></script>
+  <script src="script.js?v=1.0.3"></script>
 </body>
 
 </html>

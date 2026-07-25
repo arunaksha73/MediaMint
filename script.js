@@ -252,8 +252,24 @@ let apiBase = window.location.origin;
     return false; // server did not respond in time
   }
 
+  // Detect if user opened the page inside an in-app WebView (Instagram, TikTok, FB, etc.)
+  (function detectInAppBrowser() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+    const isInApp = /Instagram|FBAN|FBAV|Twitter|TikTok|Snapchat|LinkedIn|MicroMessenger/i.test(ua);
+    if (isInApp) {
+      const banner = qs('#inAppWarning');
+      if (banner) banner.hidden = false;
+    }
+  })();
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    if (!navigator.onLine) {
+      showToast('❌ You are currently offline. Connect to the internet and try again.');
+      return;
+    }
+
     const value = input.value.trim();
 
     if (!value || !igPattern.test(value)) {
@@ -445,4 +461,32 @@ let apiBase = window.location.origin;
 (function footerYear() {
   const el = qs('#year');
   if (el) el.textContent = new Date().getFullYear();
+})();
+
+/* ==========================================================================
+   Offline / Online Network Status Listener
+   ========================================================================== */
+
+(function networkStatus() {
+  const submitBtn = qs('#downloadBtn');
+
+  function updateOnlineStatus() {
+    if (!navigator.onLine) {
+      showToast('❌ You are currently offline. Check your internet connection.', 5000);
+      if (submitBtn) submitBtn.disabled = true;
+    } else {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  }
+
+  window.addEventListener('online', () => {
+    showToast('✅ Internet connection restored', 3000);
+    updateOnlineStatus();
+  });
+
+  window.addEventListener('offline', updateOnlineStatus);
+
+  if (!navigator.onLine) {
+    updateOnlineStatus();
+  }
 })();

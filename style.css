@@ -576,6 +576,34 @@ h1, h2, h3 {
   color: var(--muted);
 }
 
+/* In-App Browser Warning Banner */
+.inapp-warning {
+  max-width: 620px;
+  width: 100%;
+  margin: 0 auto 20px;
+  padding: 12px 18px;
+  background: color-mix(in srgb, #F59E0B 14%, var(--card));
+  border: 1px solid color-mix(in srgb, #F59E0B 40%, var(--border));
+  border-radius: var(--radius-md);
+  color: #FCD34D;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  box-shadow: 0 8px 24px -10px rgba(0,0,0,0.3);
+}
+
+.inapp-warning svg {
+  flex-shrink: 0;
+  color: #F59E0B;
+}
+
+.inapp-warning[hidden] {
+  display: none !important;
+}
+
 /* ==========================================================================
    Preview card
    ========================================================================== */
