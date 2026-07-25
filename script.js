@@ -135,12 +135,12 @@ function showToast(message, duration = 2800) {
    API base URL
    ─────────────────────────────────────────────────────────────────────────
    The frontend can be deployed on Vercel (static CDN) while the Express
-   backend runs on Render.  When that split-deployment is detected we swap
-   apiBase to the Render URL so all /api/* calls reach the actual server.
+   backend runs on Railway. When that split-deployment is detected we swap
+   apiBase to the Railway URL so all /api/* calls reach the actual server.
 
-   ⚙️  UPDATE THIS when you redeploy the backend to a new Render service:
+   ⚙️  UPDATE THIS when you redeploy the backend to a new Railway service:
    ========================================================================== */
-const RENDER_BACKEND_URL = 'https://mediamint-backend-9m54.onrender.com'; // ← your Render URL
+const RAILWAY_BACKEND_URL = 'https://media-mint-production.up.railway.app'; // ← Railway backend URL
 
 let apiBase = window.location.origin;
 (function () {
@@ -150,15 +150,15 @@ let apiBase = window.location.origin;
   const isWrongPort  = isLocalhost && window.location.port !== '3000';
 
   if (isFileScheme) {
-    // Running from file:// — point to production Render backend so they can test easily
-    apiBase = RENDER_BACKEND_URL;
+    // Running from file:// — point to production Railway backend so they can test easily
+    apiBase = RAILWAY_BACKEND_URL;
   } else if (isWrongPort) {
     // Running on localhost but wrong port — point at local server
     apiBase = 'http://localhost:3000';
   } else if (!isLocalhost) {
-    // Deployed environment: always use the Render backend, regardless of
+    // Deployed environment: always use the Railway backend, regardless of
     // which CDN/domain is serving the HTML (Vercel, GitHub Pages, etc.)
-    apiBase = RENDER_BACKEND_URL;
+    apiBase = RAILWAY_BACKEND_URL;
   }
   // If isLocalhost && port === 3000: Express serves everything, apiBase stays as-is
 })();
@@ -228,11 +228,10 @@ let apiBase = window.location.origin;
   submitBtn.addEventListener('click', (e) => spawnRipple(e, submitBtn));
 
   /**
-   * Render free tier sleeps after 15 min of inactivity.  The first request
-   * after a sleep period fails instantly with a network error ("Failed to fetch").
-   * This helper pings /health (which responds in <50 ms when awake) and retries
-   * up to MAX_TRIES times, showing a friendly "Waking up server…" toast so the
-   * user knows to wait rather than seeing a confusing error.
+   * Railway keeps services alive (no cold starts on paid tier).
+   * This helper pings /health to confirm the server is responsive before
+   * sending the main request, and retries up to MAX_TRIES times with a
+   * friendly toast so the user isn't left confused by a transient error.
    */
   async function wakeServer(maxTries = 3, timeoutMs = 8000) {
     const healthUrl = `${apiBase}/health`;

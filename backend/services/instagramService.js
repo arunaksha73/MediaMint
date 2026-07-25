@@ -2,42 +2,75 @@
  * Service to handle media extraction from Instagram URLs using yt-dlp.
  * yt-dlp is a reliable, actively maintained tool that handles Instagram's
  * bot detection and extracts direct CDN video/image URLs.
+ *
+ * Cross-platform strategy:
+ *  1. Try `python -m yt_dlp` (works everywhere pip is available)
+ *  2. Try `python3 -m yt_dlp` (Linux/macOS alias)
+ *  3. Try `yt-dlp` binary on PATH (when installed as a system binary)
+ *  4. Fallback to known Windows paths (local dev only)
  */
 
-const { execFile } = require('child_process');
+const { execFile, spawn } = require('child_process');
 const path = require('path');
 
-// yt-dlp executable path resolution across Windows and Linux (Render/Docker)
-const YT_DLP_PATHS = [
-    'yt-dlp',  // Standard system PATH (Linux/Render/Windows)
-    '/usr/local/bin/yt-dlp',
-    '/usr/bin/yt-dlp',
-    path.join(process.env.HOME || '', '.local', 'bin', 'yt-dlp'),
-    'C:\\Users\\dasam\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\Scripts\\yt-dlp.exe',
-    path.join(
-        process.env.LOCALAPPDATA || '',
-        'Packages',
-        'PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0',
-        'LocalCache', 'local-packages', 'Python313', 'Scripts', 'yt-dlp.exe'
-    ),
-];
-
+/**
+ * Run yt-dlp using one of several strategies:
+ *  - `python -m yt_dlp`  → most portable (pip install yt-dlp)
+ *  - `python3 -m yt_dlp` → Linux/macOS
+ *  - `yt-dlp` binary     → system PATH (binary install)
+ */
 function runYtDlp(args) {
     return new Promise((resolve, reject) => {
+        // Each entry: [executable, ...prefixArgs]
+        const strategies = [
+            ['python',  ['-m', 'yt_dlp']],
+            ['python3', ['-m', 'yt_dlp']],
+            ['yt-dlp',  []],
+            // Windows local-dev fallback
+            [
+                path.join(
+                    process.env.LOCALAPPDATA || '',
+                    'Packages',
+                    'PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0',
+                    'LocalCache', 'local-packages', 'Python313', 'Scripts', 'yt-dlp.exe'
+                ),
+                []
+            ],
+        ];
+
         let tried = 0;
 
         function tryNext() {
-            if (tried >= YT_DLP_PATHS.length) {
-                return reject(new Error('yt-dlp not found. Please ensure it is installed via: pip install yt-dlp'));
+            if (tried >= strategies.length) {
+                return reject(new Error(
+                    'yt-dlp not found. Install it with: pip install yt-dlp'
+                ));
             }
-            const exe = YT_DLP_PATHS[tried++];
-            execFile(exe, args, { timeout: 30000, maxBuffer: 5 * 1024 * 1024 }, (err, stdout, stderr) => {
-                if (err && (err.code === 'ENOENT' || err.message.includes('not recognized'))) {
-                    return tryNext();
+
+            const [exe, prefix] = strategies[tried++];
+            const fullArgs = [...prefix, ...args];
+
+            execFile(
+                exe,
+                fullArgs,
+                { timeout: 30000, maxBuffer: 5 * 1024 * 1024 },
+                (err, stdout, stderr) => {
+                    if (err) {
+                        // ENOENT = binary not found → try next strategy
+                        // 'not recognized' = Windows CMD equivalent of ENOENT
+                        if (
+                            err.code === 'ENOENT' ||
+                            (err.message && err.message.includes('not recognized')) ||
+                            (err.message && err.message.includes('No module named'))
+                        ) {
+                            return tryNext();
+                        }
+                        // Real error (e.g. yt-dlp itself returned non-zero)
+                        return reject(new Error(stderr || err.message));
+                    }
+                    resolve(stdout.trim());
                 }
-                if (err) return reject(new Error(stderr || err.message));
-                resolve(stdout.trim());
-            });
+            );
         }
 
         tryNext();
@@ -87,15 +120,15 @@ const fetchMediaDetails = async (url) => {
     // Get direct download URL (best quality combined video + audio format)
     let downloadUrl = null;
     if (isVideo && info.formats && info.formats.length > 0) {
-        const combinedFormats = info.formats.filter(f => 
-            f.url && 
-            f.vcodec !== 'none' && 
+        const combinedFormats = info.formats.filter(f =>
+            f.url &&
+            f.vcodec !== 'none' &&
             f.acodec !== 'none' &&
             f.ext === 'mp4'
         );
 
         if (combinedFormats.length > 0) {
-            // Sort by height (resolution) descending
+            // Sort by height (resolution) descending — pick best quality
             combinedFormats.sort((a, b) => (b.height || 0) - (a.height || 0));
             downloadUrl = combinedFormats[0].url;
         }
@@ -107,7 +140,9 @@ const fetchMediaDetails = async (url) => {
     }
 
     if (!downloadUrl) {
-        throw new Error('Could not extract a direct download URL. The post may be private.');
+        const err = new Error('Could not extract a direct download URL. The post may be private.');
+        err.name = 'MediaRetrievalError';
+        throw err;
     }
 
     // Get thumbnail

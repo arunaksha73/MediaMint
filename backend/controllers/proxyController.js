@@ -8,6 +8,7 @@
  */
 
 const axios = require('axios');
+const logger = require('../utils/logger');
 
 const proxyDownload = async (req, res, next) => {
     try {
@@ -25,10 +26,17 @@ const proxyDownload = async (req, res, next) => {
             'cdninstagram.com',
             'fbcdn.net',
             'instagram.com',
-            'www.w3schools.com',   // For demo/testing
-            'commondatastorage.googleapis.com',  // For demo
+            'www.w3schools.com',                   // For demo/testing
+            'commondatastorage.googleapis.com',    // For demo
         ];
-        const urlObj = new URL(decodedUrl);
+
+        let urlObj;
+        try {
+            urlObj = new URL(decodedUrl);
+        } catch (_) {
+            return res.status(400).json({ success: false, error: 'Invalid URL format' });
+        }
+
         const isAllowed = allowed.some(domain => urlObj.hostname.endsWith(domain));
 
         if (!isAllowed) {
@@ -51,38 +59,37 @@ const proxyDownload = async (req, res, next) => {
         // Determine filename
         const safeFilename = (filename || 'instagram_reel').replace(/[^a-z0-9_.-]/gi, '_') + '.mp4';
 
-        // Determine content type — force video/mp4 for video so iOS doesn't try to stream inline
+        // Determine content type
         const upstreamType = response.headers['content-type'] || '';
         const contentType  = safeFilename.endsWith('.mp4') ? 'video/mp4'
                            : safeFilename.endsWith('.jpg') ? 'image/jpeg'
                            : upstreamType || 'application/octet-stream';
 
-        // Set download headers — use both ASCII and RFC 5987 encoding so all mobile browsers trigger a save
+        // Set download headers
         res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"; filename*=UTF-8''${encodeURIComponent(safeFilename)}`);
         res.setHeader('Content-Type', contentType);
         if (response.headers['content-length']) {
             res.setHeader('Content-Length', response.headers['content-length']);
         }
-        // Accept-Ranges: none stops iOS from issuing range requests that can
-        // bypass Content-Disposition and cause the video to play inline instead of saving
+        // Prevent range requests from bypassing Content-Disposition on iOS
         res.setHeader('Accept-Ranges', 'none');
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-        // Prevent proxy/browser caching that can strip the Content-Disposition header
         res.setHeader('Cache-Control', 'no-store');
         res.setHeader('X-Content-Type-Options', 'nosniff');
 
         // Pipe the stream to client
         response.data.pipe(res);
 
-
         response.data.on('error', (err) => {
+            logger.error(`Proxy stream error: ${err.message}`);
             if (!res.headersSent) {
                 res.status(500).json({ success: false, error: 'Stream error: ' + err.message });
             }
         });
 
     } catch (error) {
+        logger.error(`Proxy controller error: ${error.message}`);
         if (!res.headersSent) {
             next(error);
         }
@@ -90,3 +97,4 @@ const proxyDownload = async (req, res, next) => {
 };
 
 module.exports = { proxyDownload };
+
